@@ -32,13 +32,13 @@ export class SSOAuth {
         url.searchParams.set("scope", scope);
         url.searchParams.set("nonce", crypto.randomUUID());
 
-        const code_verify = crypto.randomBytes(32).toBase64()
+        const code_verify = crypto.randomBytes(32).toString("base64")
             .replace(/\+/g, "-")
             .replace(/\//g, "_")
             .replace(/=/g, "");
 
         const code_chalange = crypto.createHash("sha256").update(code_verify).digest()
-            .toBase64()
+            .toString("base64")
             .replace(/\+/g, "-")
             .replace(/\//g, "_")
             .replace(/=/g, "");
