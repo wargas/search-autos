@@ -16,7 +16,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const { q } = await searchParams
   const session = await auth()
 
-  if (!session) {
+  if (!session?.user) {
     redirect('/login')
   }
 
