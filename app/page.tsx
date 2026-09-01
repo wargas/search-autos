@@ -20,10 +20,15 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     redirect('/login')
   }
 
+  const count = await elastic.count({
+    index: `processo_fiscal`,
+    q: String(q)
+  })
 
   const data = await elastic.search<ProcessoFiscal>({
     index: `processo_fiscal`,
-    q: String(q)
+    q: String(q),
+    size: 20
   })
 
   async function handleLogout() {
@@ -66,7 +71,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         </Form>
         <div className="flex flex-col gap-4">
           <div>
-            <span>{data.hits.hits.length} registros encontrados</span>
+            <span>{count.count} registros encontrados</span>
           </div>
           {data.hits.hits.map(hit => (
             <Card key={hit._id} className="shadow">
