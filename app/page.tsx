@@ -21,12 +21,12 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   }
 
   const count = await elastic.count({
-    index: `processo_fiscal`,
+    index: `auto_infracao`,
     q: String(q)
   })
 
   const data = await elastic.search<ProcessoFiscal>({
-    index: `processo_fiscal`,
+    index: `auto_infracao`,
     q: String(q),
     size: 20
   })
@@ -77,13 +77,13 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             <Card key={hit._id} className="shadow">
               <CardHeader className="border-b">
                 <CardTitle>Processo: {hit._source?.protocolo}</CardTitle>
-                <CardDescription>Data: {hit._source?.dataLavratura}</CardDescription>
-                <CardDescription>GEAF: {hit._source?.geaf}</CardDescription>
-                <CardDescription>AUDITOR: {hit._source?.acaoFiscal.auditor}</CardDescription>
+                <CardDescription>Sujeito passivo: {hit._source?.acao.nome} - {hit._source?.acao.identificacao}</CardDescription>
+                <CardDescription>GEAF: {hit._source?.acao.equipe}</CardDescription>
+                <CardDescription>AUDITOR: {hit._source?.acao.auditor}</CardDescription>
                 <CardDescription>INFRAÇÃO: {hit._source?.infracao}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="mx-auto" dangerouslySetInnerHTML={{ __html: hit._source?.descricaoFatos ?? '' }}></div>
+                <div className="mx-auto" dangerouslySetInnerHTML={{ __html: hit._source?.descricao ?? '' }}></div>
               </CardContent>
             </Card>
           ))}

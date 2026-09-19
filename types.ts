@@ -42,23 +42,23 @@ export type SearchResponse = {
   }
 
   export type ProcessoFiscal = {
+    id: string
     protocolo: string
-    acaoFiscalprotocolo: string
-    descricaoFatos: string
-    geaf: string
+    acao_protocolo: string
+    descricao: string
+    descricao_text: string
     especie: string
     natureza: string
-    dataLavratura: string
     infracao: string
-    situacao: string
-    acaoFiscal: {
+    acao: {
       protocolo: string
-      auditor: string
-      identificao: string
+      identificacao: string
       nome: string
-      dataGeracao: string
+      dataCriacao: string
       tipo: string
-      abordagem: string
+      auditor: string
+      encerramento: any
+      equipe: string
     }
   }
   
