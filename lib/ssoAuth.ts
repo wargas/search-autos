@@ -4,6 +4,8 @@ import _ from 'lodash';
 import crypto from 'node:crypto'
 import qs from 'querystring'
 
+const REALM = 'sti';
+
 export class SSOAuth {
 
     static factory() {
@@ -13,7 +15,7 @@ export class SSOAuth {
     async generateAuthURL() {
 
         const baseUrl = "https://sso.sefaz.pe.gov.br/auth";
-        const realm = "sti";
+        const realm = REALM;
         const client_id = "trb-gac-front-web";
         const scope = "openid";
 
@@ -97,7 +99,7 @@ export class SSOAuth {
 
         const { code } = qs.parse(location.split(`#`)[1]!)
 
-        const reqToken = await got.post(`https://sso.sefaz.pe.gov.br/auth/realms/${realm}/protocol/openid-connect/token`, {
+        const reqToken = await got.post(`https://sso.sefaz.pe.gov.br/auth/realms/${REALM}/protocol/openid-connect/token`, {
             form: {
                 code,
                 grant_type: `authorization_code`,
