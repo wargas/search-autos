@@ -97,7 +97,7 @@ export class SSOAuth {
 
         const { code } = qs.parse(location.split(`#`)[1]!)
 
-        const reqToken = await got.post(`https://sso.sefaz.pe.gov.br/auth/realms/sefazpe/protocol/openid-connect/token`, {
+        const reqToken = await got.post(`https://sso.sefaz.pe.gov.br/auth/realms/${realm}/protocol/openid-connect/token`, {
             form: {
                 code,
                 grant_type: `authorization_code`,
