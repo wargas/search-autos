@@ -13,7 +13,7 @@ export class SSOAuth {
     async generateAuthURL() {
 
         const baseUrl = "https://sso.sefaz.pe.gov.br/auth";
-        const realm = "sefazpe";
+        const realm = "sti";
         const client_id = "trb-gac-front-web";
         const scope = "openid";
 
