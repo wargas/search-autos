@@ -5,6 +5,7 @@ import crypto from 'node:crypto'
 import qs from 'querystring'
 
 const REALM = 'sti';
+const CLIENT_ID = 'sefazpe-broker'
 
 export class SSOAuth {
 
@@ -16,7 +17,7 @@ export class SSOAuth {
 
         const baseUrl = "https://sso.sefaz.pe.gov.br/auth";
         const realm = REALM;
-        const client_id = "trb-gac-front-web";
+        const client_id = CLIENT_ID;
         const scope = "openid";
 
         const url = new URL(
@@ -103,7 +104,7 @@ export class SSOAuth {
             form: {
                 code,
                 grant_type: `authorization_code`,
-                client_id: `trb-gac-front-web`,
+                client_id: CLIENT_ID,
                 redirect_uri: `https://conformidade.sefaz.pe.gov.br`,
                 code_verifier: authUrl.code_verify
             }
