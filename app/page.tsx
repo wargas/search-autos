@@ -7,14 +7,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { auth, signOut } from "@/lib/auth";
 import { elastic } from "@/lib/elastic";
+import { cn } from "@/lib/utils";
 import { ProcessoFiscal, SearchResponse } from "@/types";
 import { range } from "lodash";
-import { LogOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import qs from "querystring"
 
 export default async function Home({ searchParams }: PageProps<"/">) {
+  const params = await searchParams;
   const { q, ano = "todos", auditor = "", p = "1" } = await searchParams
   const session = await auth()
 
@@ -60,6 +63,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
   //   await signOut({ redirectTo: '/login' })
   // }
+  function generateSearchParams(newParams: any) {
+    const search = { ...params, ...newParams }
+
+    return "?" + qs.stringify(search)
+  }
 
   return (
     <div className="">
@@ -111,19 +119,26 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               <span>mostrando de {((page - 1) * 20) + 1} a {((page - 1) * 20) + data.hits.hits.length} de {count.count} registros encontrados</span>
             </div>
             <div>
-              Pagina
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="w-10 ml-4" variant={`outline`}>{page}</Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {Array(paginas).fill(1).map((_, p) => (
-                    <DropdownMenuItem key={p} asChild>
-                      <Link href={`?ano=${ano}&q=${q}&auditor=${auditor}&p=${p+1}`}>{p+1}</Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex">
+                <Button className={cn({"opacity-30": page == 1})} variant={`ghost`} asChild> 
+                  <Link href={generateSearchParams({p: Math.max(1, page-1)})}><ChevronLeft /></Link>
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="w-12" variant={`outline`}>{page}</Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {Array(paginas).fill(1).map((_, p) => (
+                      <DropdownMenuItem key={p} asChild>
+                        <Link href={generateSearchParams({ p: p + 1 })}>{p + 1}</Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button className={cn({"opacity-30": page == paginas})} variant={`ghost`} asChild> 
+                  <Link href={generateSearchParams({p: Math.min(paginas, page+1)})}><ChevronRight /></Link>
+                </Button>
+              </div>
             </div>
           </div>
           {data.hits.hits.map(hit => (
