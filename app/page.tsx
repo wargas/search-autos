@@ -54,7 +54,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     sort: { 'protocolo.keyword': { order: 'desc' } }
   })
 
-  const paginas = Math.ceil(count.count / 20)
+  const pages = Math.ceil(count.count / 20)
 
   // async function handleLogout() {
   //   'use server'
@@ -125,18 +125,18 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button className="w-12" variant={`outline`}>{page}</Button>
+                    <Button  variant={`outline`}>{page.toString().padStart(2, `0`)} <span className="opacity-50">/</span>  {pages.toString().padStart(2, '0')}</Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    {Array(paginas).fill(1).map((_, p) => (
+                    {Array(pages).fill(1).map((_, p) => (
                       <DropdownMenuItem key={p} asChild>
-                        <Link href={generateSearchParams({ p: p + 1 })}>{p + 1}</Link>
+                        <Link href={generateSearchParams({ p: p + 1 })}>{(p + 1).toString().padStart(2, '0')}</Link>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button className={cn({"opacity-30": page == paginas})} variant={`ghost`} asChild> 
-                  <Link href={generateSearchParams({p: Math.min(paginas, page+1)})}><ChevronRight /></Link>
+                <Button className={cn({"opacity-30": page == pages})} variant={`ghost`} asChild> 
+                  <Link href={generateSearchParams({p: Math.min(pages, page+1)})}><ChevronRight /></Link>
                 </Button>
               </div>
             </div>
