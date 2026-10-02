@@ -12,25 +12,29 @@ import { range } from "lodash";
 import { LogOut } from "lucide-react";
 import Form from "next/form";
 import { redirect } from "next/navigation";
+import pretty from "pretty-time"
 
 export default async function Home({ searchParams }: PageProps<"/">) {
-  const { q, ano = "todos" } = await searchParams
+  const { q, ano = "todos", auditor = "" } = await searchParams
   const session = await auth()
 
   if (!session?.user) {
     redirect('/login')
   }
 
+  const start = process.hrtime()
+
   const query: Parameters<typeof elastic.search>[0] = {
     index: `auto_infracao`,
     query: {
       bool: {
         filter: [
-          ...ano != "todos" ? [{ wildcard: { 'acao.dataCriacao': {value: '*2026'}} }] : []
-          // { wildcard: { 'acao.dataCriacao': {value: '*2026'}} }
+          ...ano != "todos" ? [{ wildcard: { 'acao.dataCriacao': { value: `*${ano}` } } }] : [],
+          ...auditor != "" ? [{ match_phrase: { 'acao.auditor': String(auditor) } }] : []
         ],
         must: [
-          {match: { descricao_text: String(q) }}
+          ...q ? [{ match: { descricao_text: String(q) } }] : [],
+
         ]
       }
     }
@@ -42,6 +46,9 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   const data = await elastic.search<ProcessoFiscal>({
     ...query, size: 20
   })
+
+
+  const duration = process.hrtime(start)
 
   async function handleLogout() {
     'use server'
@@ -88,13 +95,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             </SelectContent>
           </Select>
           <Input defaultValue={q} placeholder="termo de busca..." name="q" />
+          <Input defaultValue={auditor} placeholder="auditor..." name="auditor" />
           <Button type="submit">
             <FormLoading />
             Filtrar</Button>
         </Form>
         <div className="flex flex-col gap-4">
-          <div>
-            <span>{count.count} registros encontrados</span>
+          <div className="text-sm">
+            <span>{count.count} registros encontrados em {pretty(duration)}</span>
           </div>
           {data.hits.hits.map(hit => (
             <Card key={hit._id} className="shadow">
