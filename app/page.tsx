@@ -11,18 +11,19 @@ import { ProcessoFiscal, SearchResponse } from "@/types";
 import { range } from "lodash";
 import { LogOut } from "lucide-react";
 import Form from "next/form";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import pretty from "pretty-time"
 
 export default async function Home({ searchParams }: PageProps<"/">) {
-  const { q, ano = "todos", auditor = "" } = await searchParams
+  const { q, ano = "todos", auditor = "", p = "1" } = await searchParams
   const session = await auth()
+
+  const page = parseInt(String(p))
 
   if (!session?.user) {
     redirect('/login')
   }
 
-  const start = process.hrtime()
 
   const query: Parameters<typeof elastic.search>[0] = {
     index: `auto_infracao`,
@@ -37,26 +38,28 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
         ]
       }
-    }    
+    }
   };
 
 
   const count = await elastic.count(query)
 
   const data = await elastic.search<ProcessoFiscal>({
-    ...query, size: 20, sort: { 'protocolo.keyword': { order: 'desc' } }
+    ...query,
+    size: 20,
+    from: (page - 1) * 20,
+    sort: { 'protocolo.keyword': { order: 'desc' } }
   })
 
+  const paginas = Math.ceil(count.count / 20)
 
-  const duration = process.hrtime(start)
+  // async function handleLogout() {
+  //   'use server'
 
-  async function handleLogout() {
-    'use server'
+  //   console.log(`sair`)
 
-    console.log(`sair`)
-
-    await signOut({ redirectTo: '/login' })
-  }
+  //   await signOut({ redirectTo: '/login' })
+  // }
 
   return (
     <div className="">
@@ -96,13 +99,32 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           </Select>
           <Input defaultValue={q} placeholder="termo de busca..." name="q" />
           <Input defaultValue={auditor} placeholder="auditor..." name="auditor" />
+          <input type="hidden" name="p" value={1} />
           <Button type="submit">
             <FormLoading />
             Filtrar</Button>
         </Form>
         <div className="flex flex-col gap-4">
-          <div className="text-sm">
-            <span>{count.count} registros encontrados em {pretty(duration)}</span>
+          <div className="flex justify-between items-center">
+
+            <div className="text-sm">
+              <span>mostrando de {((page - 1) * 20) + 1} a {((page - 1) * 20) + data.hits.hits.length} de {count.count} registros encontrados</span>
+            </div>
+            <div>
+              Pagina
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="w-10 ml-4" variant={`outline`}>{page}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {Array(paginas).fill(1).map((_, p) => (
+                    <DropdownMenuItem key={p} asChild>
+                      <Link href={`?ano=${ano}&q=${q}&auditor=${auditor}&p=${p+1}`}>{p+1}</Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           {data.hits.hits.map(hit => (
             <Card key={hit._id} className="shadow">
