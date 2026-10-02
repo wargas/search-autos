@@ -37,14 +37,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
         ]
       }
-    }
+    }    
   };
 
 
   const count = await elastic.count(query)
 
   const data = await elastic.search<ProcessoFiscal>({
-    ...query, size: 20
+    ...query, size: 20, sort: { 'protocolo.keyword': { order: 'desc' } }
   })
 
 
