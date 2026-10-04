@@ -9,16 +9,19 @@ import { auth, signOut } from "@/lib/auth";
 import { elastic } from "@/lib/elastic";
 import { cn } from "@/lib/utils";
 import { ProcessoFiscal, SearchResponse } from "@/types";
-import { range } from "lodash";
+import { range, set } from "lodash";
 import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import qs from "querystring"
+import { estypes } from '@elastic/elasticsearch'
+
+// type T =estypes
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
-  const { q, ano = "todos", auditor = "", p = "1" } = await searchParams
+  const { q, ano = "todos", auditor = "", p = "1", contribuinte = "" } = await searchParams
   const session = await auth()
 
   const page = parseInt(String(p))
@@ -27,18 +30,33 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     redirect('/login')
   }
 
+  const filter: estypes.QueryDslQueryContainer[] = []
+
+  if (ano != "todos") {
+    filter.push({ wildcard: { 'acao.dataCriacao': { value: `*${ano}` } } })
+  }
+
+  if (auditor) {
+    filter.push({ match_phrase: { 'acao.auditor': String(auditor) } })
+  }
+
+  if (contribuinte) {
+    filter.push({
+      multi_match: {
+        query: contribuinte.toString(),
+        fields: ['acao.identificacao', 'acao.nome'],
+        type: 'phrase'
+      }
+    })
+  }
 
   const query: Parameters<typeof elastic.search>[0] = {
     index: `auto_infracao`,
     query: {
       bool: {
-        filter: [
-          ...ano != "todos" ? [{ wildcard: { 'acao.dataCriacao': { value: `*${ano}` } } }] : [],
-          ...auditor != "" ? [{ match_phrase: { 'acao.auditor': String(auditor) } }] : []
-        ],
+        filter,
         must: [
           ...q ? [{ match_phrase: { descricao_text: String(q) } }] : [],
-
         ]
       }
     }
@@ -56,13 +74,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
   const pages = Math.ceil(count.count / 20)
 
-  // async function handleLogout() {
-  //   'use server'
 
-  //   console.log(`sair`)
-
-  //   await signOut({ redirectTo: '/login' })
-  // }
   function generateSearchParams(newParams: any) {
     const search = { ...params, ...newParams }
 
@@ -93,9 +105,9 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         </div>
       </div>
       <div className="p-4 fixed inset-0 top-14 pt-4 overflow-y-auto">
-        <Form action={``} className="flex gap-4 mb-6">
+        <Form action={``} className="grid grid-cols-12 gap-4 mb-6">
           <Select name="ano" defaultValue={ano.toString()}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full col-span-12 md:col-span-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -105,10 +117,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               ))}
             </SelectContent>
           </Select>
-          <Input defaultValue={q} placeholder="termo de busca..." name="q" />
-          <Input defaultValue={auditor} placeholder="auditor..." name="auditor" />
+          <Input className="col-span-12 md:col-span-6" defaultValue={q} placeholder="termo de busca..." name="q" />
+          <Input className="col-span-12 md:col-span-2" defaultValue={auditor} placeholder="auditor..." name="auditor" />
+          <Input className="col-span-12 md:col-span-2" defaultValue={contribuinte} placeholder="sujeito passivo..." name="contribuinte" />
           <input type="hidden" name="p" value={1} />
-          <Button type="submit">
+          <Button type="submit" className="col-span-12 md:col-span-1">
             <FormLoading />
             Filtrar</Button>
         </Form>
@@ -120,12 +133,12 @@ export default async function Home({ searchParams }: PageProps<"/">) {
             </div>
             <div>
               <div className="flex">
-                <Button className={cn({"opacity-30": page == 1})} variant={`ghost`} asChild> 
-                  <Link href={generateSearchParams({p: Math.max(1, page-1)})}><ChevronLeft /></Link>
+                <Button className={cn({ "opacity-30": page == 1 })} variant={`ghost`} asChild>
+                  <Link href={generateSearchParams({ p: Math.max(1, page - 1) })}><ChevronLeft /></Link>
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button  variant={`outline`}>{page.toString().padStart(2, `0`)} <span className="opacity-50">/</span>  {pages.toString().padStart(2, '0')}</Button>
+                    <Button variant={`outline`}>{page.toString().padStart(2, `0`)} <span className="opacity-50">/</span>  {pages.toString().padStart(2, '0')}</Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     {Array(pages).fill(1).map((_, p) => (
@@ -135,8 +148,8 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button className={cn({"opacity-30": page == pages})} variant={`ghost`} asChild> 
-                  <Link href={generateSearchParams({p: Math.min(pages, page+1)})}><ChevronRight /></Link>
+                <Button className={cn({ "opacity-30": page == pages })} variant={`ghost`} asChild>
+                  <Link href={generateSearchParams({ p: Math.min(pages, page + 1) })}><ChevronRight /></Link>
                 </Button>
               </div>
             </div>
