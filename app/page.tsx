@@ -37,7 +37,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           ...auditor != "" ? [{ match_phrase: { 'acao.auditor': String(auditor) } }] : []
         ],
         must: [
-          ...q ? [{ match: { descricao_text: String(q) } }] : [],
+          ...q ? [{ match_phrase: { descricao_text: String(q) } }] : [],
 
         ]
       }
