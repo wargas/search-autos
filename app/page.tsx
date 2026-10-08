@@ -90,7 +90,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <div className="ml-auto">
           <DropdownMenu>
             <DropdownMenuTrigger>
-              {session.user?.name}
+              {session.user?.email?.split("@").at(0) ?? ""} 
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem asChild>

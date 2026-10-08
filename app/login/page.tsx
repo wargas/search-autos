@@ -25,7 +25,7 @@ export default async function PageLogin({searchParams}:PageProps<"/login">) {
     const { error, success } = await searchParams
     const session = await auth()
 
-    if(session?.user && success == "1") {
+    if(session?.user) {
         redirect(`/`)
     }
 
@@ -34,14 +34,19 @@ export default async function PageLogin({searchParams}:PageProps<"/login">) {
 
         try {
 
-            await signIn('credentials', { cpf: data.get('cpf'), password: data.get('password'), redirect: false });
+            const email = data.get("email")?.toString()
+
+            await signIn("nodemailer", { email, redirect: false})
+            // await signIn('credentials', { cpf: data.get('cpf'), password: data.get('password'), redirect: false });
 
         } catch (error) {
+
+            console.log(error)
 
             redirect(`/login?error=1`)            
         }
 
-        redirect(`/login?success=1`)
+        redirect(`/login/verify-request`)
         
     }
 
@@ -64,21 +69,15 @@ export default async function PageLogin({searchParams}:PageProps<"/login">) {
                         <Form action={handleLogin}>
                             <FieldGroup>
                                 <Field>
-                                    <FieldLabel htmlFor="cpf">CPF</FieldLabel>
+                                    <FieldLabel htmlFor="email">Email</FieldLabel>
                                     <Input
-                                        id="cpf"
+                                        id="email"
                                         type="text"
-                                        name="cpf"
-                                        placeholder="999.999.999-99"
-                                        required
+                                        name="email"
+                                        // required
                                     />
                                 </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="password">Password</FieldLabel>
-
-                                    <Input id="password"
-                                        type="password" name="password" required />
-                                </Field>
+                                
                                 <Field>
                                     <Button type="submit">
                                         <FormLoading />

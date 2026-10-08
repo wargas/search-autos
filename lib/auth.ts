@@ -1,38 +1,58 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials"
+import EmailProvider from "next-auth/providers/nodemailer"
 import { SSOAuth } from "./ssoAuth";
 import { last } from "lodash";
+import { createStorage } from "unstorage"
+import { UnstorageAdapter } from "@auth/unstorage-adapter"
+import fsDriver from "unstorage/drivers/fs";
+import { html, text } from "./email";
+import { createTransport } from "nodemailer";
 
-export const { auth, handlers, signIn, signOut} = NextAuth({
+
+const storage = createStorage({
+    driver: fsDriver({ base: "./data" })
+})
+
+export const { auth, handlers, signIn, signOut } = NextAuth({
     providers: [
-        CredentialsProvider({
-            credentials: {cpf: {}, password: {}},
-            name: `Credentials`,
-            async authorize(credentials, req) {
 
+        EmailProvider({
+            server: process.env.EMAIL_SERVER,
+            from: process.env.EMAIL_FROM,
 
-                return {
-                    name: "Wargas Teixeira",
-                    email: "wargas.teixeira@sefaz.pe.gov.br",
-                    id: "123",
+            async sendVerificationRequest(params) {
+                if(process.env.NODE_ENV != "production") {
+                    console.log(params.url);
+
+                    return;
                 }
-                // if(credentials.cpf == )
-            
-                // const token = await SSOAuth.factory().login(String(credentials.cpf), String(credentials.password))
 
-                // if(!token) return null;
+                const { identifier, url, provider, theme } = params;
+                const { host } = new URL(url);
+                const transport = createTransport(provider.server);
+                const result = await transport.sendMail({
+                    to: identifier,
+                    from: provider.from,
+                    subject: `Sign in to ${host}`,
+                    text: text({ url, host }),
+                    html: html({ url, host, theme }),
+                });
+                const rejected = result.rejected || [];
+                const pending = result.pending || [];
+                const failed = rejected.concat(pending).filter(Boolean);
+                if (failed.length) {
+                    throw new Error(`Email (${failed.join(", ")}) could not be sent`);
+                }
+            }
+        }),
 
-                // const payload = JSON.parse(atob(token.split('.')[1])) as any
 
-                // const lastName = last(String(payload.family_name).split(` `))
-               
-                // return {
-                //     name: `${payload.given_name} ${lastName}`,
-                //     email: payload.email,
-                //     id: payload.sid,
-                //     image: ''
-                // }
-            },
-        })
-    ]
+    ],
+    adapter: UnstorageAdapter(storage),
+    callbacks: {
+        async signIn(props) {
+            return !!props.user.email?.toLocaleLowerCase().endsWith("@sefaz.pe.gov.br")
+        }
+    }
 });
