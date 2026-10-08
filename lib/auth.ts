@@ -1,8 +1,5 @@
 import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials"
 import EmailProvider from "next-auth/providers/nodemailer"
-import { SSOAuth } from "./ssoAuth";
-import { last } from "lodash";
 import { createStorage } from "unstorage"
 import { UnstorageAdapter } from "@auth/unstorage-adapter"
 import fsDriver from "unstorage/drivers/fs";
@@ -18,8 +15,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     providers: [
 
         EmailProvider({
-            server: process.env.EMAIL_SERVER,
-            from: process.env.EMAIL_FROM,
+            server: process.env.EMAIL_SERVER ?? "smtp://admin:admin@smtp.deltex.com.br:587",
+            from: process.env.EMAIL_FROM!,
 
             async sendVerificationRequest(params) {
                 if(process.env.NODE_ENV != "production") {
