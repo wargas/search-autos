@@ -17,13 +17,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         EmailProvider({
             server: process.env.EMAIL_SERVER ?? "smtp://admin:admin@smtp.deltex.com.br:587",
             from: process.env.EMAIL_FROM!,
-
             async sendVerificationRequest(params) {
+                
                 if(process.env.NODE_ENV != "production") {
                     console.log(params.url);
 
                     return;
                 }
+
+                console.log(params.url);
 
                 const { identifier, url, provider, theme } = params;
                 const { host } = new URL(url);
