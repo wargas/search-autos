@@ -1,6 +1,3 @@
-import crypto from 'node:crypto'
+import { elastic } from "./lib/elastic";
 
-const t = crypto.randomBytes(32).toString("base64")
-
-
-console.log(t, crypto.createHash('sha256').update(t).digest().toString("base64"))
+await elastic.index({ index: "teste", body: {} })
