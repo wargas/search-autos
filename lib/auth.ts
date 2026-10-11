@@ -5,7 +5,8 @@ import { UnstorageAdapter } from "@auth/unstorage-adapter"
 import fsDriver from "unstorage/drivers/fs";
 import { html, text } from "./email";
 import { createTransport } from "nodemailer";
-
+import qs from 'querystring'
+import { writeFile } from "fs/promises";
 
 const storage = createStorage({
     driver: fsDriver({ base: "./data" })
@@ -17,25 +18,36 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         EmailProvider({
             server: process.env.EMAIL_SERVER ?? "smtp://admin:admin@smtp.deltex.com.br:587",
             from: process.env.EMAIL_FROM!,
+            generateVerificationToken() {
+                return crypto.randomUUID()
+            },
             async sendVerificationRequest(params) {
-                
-                if(process.env.NODE_ENV != "production") {
+
+              
+                const { identifier, url, provider, theme } = params;
+                const { host } = new URL(url);
+
+                console.log(params.token);
+
+                if (process.env.NODE_ENV != "production") {
                     console.log(params.url);
+
+                    await writeFile("email.html", html({url: params.url, host: host, theme: params.theme, token: params.token}))
 
                     return;
                 }
 
-                console.log(params.url);
 
-                const { identifier, url, provider, theme } = params;
-                const { host } = new URL(url);
+                // console.log(params.url);
+
+                
                 const transport = createTransport(provider.server);
                 const result = await transport.sendMail({
                     to: identifier,
                     from: provider.from,
                     subject: `Sign in to ${host}`,
                     text: text({ url, host }),
-                    html: html({ url, host, theme }),
+                    html: html({ url, host, theme, token: params.token }),
                 });
                 const rejected = result.rejected || [];
                 const pending = result.pending || [];

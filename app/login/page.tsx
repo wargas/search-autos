@@ -32,9 +32,9 @@ export default async function PageLogin({searchParams}:PageProps<"/login">) {
     async function handleLogin(data: FormData) {
         'use server'
 
+        const email = data.get("email")?.toString()
         try {
 
-            const email = data.get("email")?.toString()
 
             await signIn("nodemailer", { email, redirect: false})
             // await signIn('credentials', { cpf: data.get('cpf'), password: data.get('password'), redirect: false });
@@ -46,7 +46,7 @@ export default async function PageLogin({searchParams}:PageProps<"/login">) {
             redirect(`/login?error=1`)            
         }
 
-        redirect(`/login/verify-request`)
+        redirect(`/login/verify-request?email=${email}`)
         
     }
 
