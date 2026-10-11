@@ -44,7 +44,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     filter.push({
       multi_match: {
         query: contribuinte.toString(),
-        fields: ['acao.identificacao', 'acao.nome'],
+        fields: ['acao.identificacao', 'acao.nome', 'cnpj'],
         type: 'phrase'
       }
     })
@@ -154,14 +154,17 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               </div>
             </div>
           </div>
+          <code>
+            
+          </code>
           {data.hits.hits.map(hit => (
             <Card key={hit._id} className="shadow">
               <CardHeader className="border-b">
                 <CardTitle>Processo: {hit._source?.protocolo}</CardTitle>
                 <CardDescription>Ação Fiscal: {hit._source?.acao.protocolo}</CardDescription>
-                <CardDescription>Data criacao: {hit._source?.acao.dataCriacao}</CardDescription>
-                <CardDescription>Sujeito passivo: {hit._source?.acao.nome} - {hit._source?.acao.identificacao}</CardDescription>
-                <CardDescription>GEAF: {hit._source?.acao.equipe}</CardDescription>
+                <CardDescription>Data lavratura: {hit._source?.dataLavratura}</CardDescription>
+                <CardDescription>Sujeito passivo: {hit._source?.acao.nome} - {hit._source?.cnpj} - {hit._source?.acao.identificacao}</CardDescription>
+                <CardDescription>GEAF: {hit._source?.acao.equipe_id}</CardDescription>
                 <CardDescription>AUDITOR: {hit._source?.acao.auditor}</CardDescription>
                 <CardDescription>INFRAÇÃO: {hit._source?.infracao}</CardDescription>
               </CardHeader>

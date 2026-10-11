@@ -50,6 +50,8 @@ export type SearchResponse = {
     especie: string
     natureza: string
     infracao: string
+    cnpj: string,
+    dataLavratura: string,
     acao: {
       protocolo: string
       identificacao: string
@@ -59,6 +61,7 @@ export type SearchResponse = {
       auditor: string
       encerramento: any
       equipe: string
+      equipe_id: string
     }
   }
   
