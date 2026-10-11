@@ -19,7 +19,7 @@ export default async function VerifyRequestPage({ searchParams }: PageProps<"/lo
                 <Form action={'/api/auth/callback/nodemailer'} formMethod="GET" className="flex flex-col gap-4">
                     <Field>
                         <FieldLabel>Token</FieldLabel>
-                        <Input type="hidden" name="callbackUrl" value={`http://localhost:3000/`} />
+                        <Input type="hidden" name="callbackUrl" value={process.env.AUTH_URL!} />
                         <Input name="token" />
 
                         <Input type="hidden" name="email" value={email} />
