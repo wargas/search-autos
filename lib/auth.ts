@@ -49,7 +49,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                     to: identifier,
                     from: provider.from,
                     subject: `Sign in to ${host}`,
-                    text: text({ url, host }),
+                    text: text({ url, host, token: params.token }),
                     html: html({ url, host, theme, token: params.token }),
                 });
                 const rejected = result.rejected || [];

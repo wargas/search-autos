@@ -46,7 +46,7 @@ export function html(params: { url: string; host: string; theme: any, token: str
   `
 }
 
-export function text({ url, host }: { url: string; host: string }) {
-    return `Sign in to ${host}\n${url}\n\n`
+export function text({ url, host }: { url: string; host: string, token: string }) {
+    return `Sign in to ${host}\n${token}\n\n`
 }
 
