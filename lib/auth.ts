@@ -23,6 +23,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             },
             async sendVerificationRequest(params) {
 
+                console.log("TOKEN", params.token);
+                console.log("EXPIRES", params.expires);
+
               
                 const { identifier, url, provider, theme } = params;
                 const { host } = new URL(url);
