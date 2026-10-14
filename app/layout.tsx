@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
     >
-      <body className="relative">
+      <body className="h-screen overflow-y-auto">
 
 
         <ThemeProvider
@@ -48,7 +48,7 @@ export default function RootLayout({
         </ThemeProvider>
 
 
-        <div className="absolute left-0 right-0 bottom-0 bg-white flex">
+        <div className="fixed left-0 right-0 bottom-0 bg-white flex">
           <span className="ml-auto text-xs px-4">BUILD: {process.env.NEXT_PUBLIC_BUILD_DATE}</span>
         </div>
       </body>
