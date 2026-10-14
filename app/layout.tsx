@@ -29,19 +29,24 @@ export default function RootLayout({
 }>) {
   return (
     <html
+      suppressHydrationWarning
       lang="pt-BR"
-      className={cn("h-full", "dark", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
+      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}
     >
       <body className="relative">
+
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
         </ThemeProvider>
+
 
         <div className="absolute left-0 right-0 bottom-0 bg-white flex">
           <span className="ml-auto text-xs px-4">BUILD: {process.env.NEXT_PUBLIC_BUILD_DATE}</span>

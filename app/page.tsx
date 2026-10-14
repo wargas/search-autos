@@ -5,18 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { elastic } from "@/lib/elastic";
 import { cn } from "@/lib/utils";
-import { ProcessoFiscal, SearchResponse } from "@/types";
-import { range, set } from "lodash";
-import { ChevronDown, ChevronLeft, ChevronRight, LogOut, LogOutIcon } from "lucide-react";
+import { ProcessoFiscal } from "@/types";
+import { range } from "lodash";
+import { ChevronDown, ChevronLeft, ChevronRight, Link2Icon, LogOutIcon } from "lucide-react";
 import Form from "next/form";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import qs from "querystring"
 import { estypes } from '@elastic/elasticsearch'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarSeparator, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/ui/sidebar";
 import React from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ModeToggle } from "@/components/theme-toggle";
@@ -110,7 +110,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           <SidebarContent>
             <SidebarMenu className="flex flex-col gap-4 p-4">
 
-              <Select name="ano" defaultValue={ano.toString()}>
+              <Select name="ano" key={`ano-${ano}`} defaultValue={ano.toString() ?? 'todos'}>
                 <SelectTrigger className="w-full col-span-12 md:col-span-1">
                   <SelectValue />
                 </SelectTrigger>
@@ -121,11 +121,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                   ))}
                 </SelectContent>
               </Select>
-              <Input className="col-span-12 md:col-span-6" defaultValue={q} placeholder="termo de busca..." name="q" />
-              <Input className="col-span-12 md:col-span-2" defaultValue={auditor} placeholder="auditor..." name="auditor" />
-              <Input className="col-span-12 md:col-span-2" defaultValue={contribuinte} placeholder="sujeito passivo..." name="contribuinte" />
-              <Input className="col-span-12 md:col-span-2" defaultValue={infracao} placeholder="infracao..." name="infracao" />
-              <Input className="col-span-12 md:col-span-2" defaultValue={acao} placeholder="acao fiscal..." name="acao" />
+              <Input key={`q-${q}`} defaultValue={q} placeholder="termo de busca..." name="q" />
+              <Input key={`auditor-${auditor}`} defaultValue={auditor} placeholder="auditor..." name="auditor" />
+              <Input key={`contribuinte-${contribuinte}`} defaultValue={contribuinte} placeholder="sujeito passivo..." name="contribuinte" />
+              <Input key={`infracao-${infracao}`} defaultValue={infracao} placeholder="infracao..." name="infracao" />
+              <Input key={`acao-${acao}`} defaultValue={acao} placeholder="acao fiscal..." name="acao" />
               <input type="hidden" name="p" value={1} />
 
               <div className="flex gap-2 mt-4">
@@ -180,48 +180,50 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                   <span>mostrando de {((page - 1) * 20) + 1} a {((page - 1) * 20) + data.hits.hits.length} de {count.count} registros encontrados</span>
                 </div>
                 <div>
-                  <div className="flex">
-                    <Button className={cn({ "opacity-30": page == 1 })} variant={`ghost`} asChild>
-                      <Link href={generateSearchParams({ p: Math.max(1, page - 1) })}><ChevronLeft /></Link>
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant={`outline`}>{page.toString().padStart(2, `0`)} <span className="opacity-50">/</span>  {pages.toString().padStart(2, '0')}</Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {Array(pages).fill(1).map((_, p) => (
-                          <DropdownMenuItem key={p} asChild>
-                            <Link href={generateSearchParams({ p: p + 1 })}>{(p + 1).toString().padStart(2, '0')}</Link>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Button className={cn({ "opacity-30": page == pages })} variant={`ghost`} asChild>
-                      <Link href={generateSearchParams({ p: Math.min(pages, page + 1) })}><ChevronRight /></Link>
-                    </Button>
-                  </div>
+                  {data.hits.hits.length > 0 && (
+                    <div className="flex">
+                      <Button className={cn({ "opacity-30": page == 1 })} variant={`ghost`} asChild>
+                        <Link href={generateSearchParams({ p: Math.max(1, page - 1) })}><ChevronLeft /></Link>
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant={`outline`}>{page.toString().padStart(2, `0`)} <span className="opacity-50">/</span>  {pages.toString().padStart(2, '0')}</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          {Array(pages).fill(1).map((_, p) => (
+                            <DropdownMenuItem key={p} asChild>
+                              <Link href={generateSearchParams({ p: p + 1 })}>{(p + 1).toString().padStart(2, '0')}</Link>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <Button className={cn({ "opacity-30": page == pages })} variant={`ghost`} asChild>
+                        <Link href={generateSearchParams({ p: Math.min(pages, page + 1) })}><ChevronRight /></Link>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
-              {data.hits.hits.map(hit => (
-                <Collapsible className="relative group" key={hit._id}>
+              {data.hits.hits.map(hit => hit._source).map(item => (
+                <Collapsible className="relative group" key={item?.id}>
                   <Card className="shadow">
-                    <CardHeader className="border-b relative">
+                    <CardHeader className="relative">
                       <CollapsibleTrigger asChild>
-                        <Button className="absolute bottom-1 right-1 group" variant={'outline'}>
+                        <Button className="absolute -bottom-3 right-1 group" variant={'outline'}>
                           <ChevronDown className="transition-all group-data-[state=open]:rotate-180" />
                         </Button>
                       </CollapsibleTrigger>
-                      <CardTitle>Processo: {hit._source?.protocolo}</CardTitle>
-                      <CardDescription>Ação Fiscal: {hit._source?.acao.protocolo}</CardDescription>
-                      <CardDescription>Data lavratura: {hit._source?.dataLavratura}</CardDescription>
-                      <CardDescription>Sujeito passivo: {hit._source?.acao.nome} - {hit._source?.cnpj} - {hit._source?.acao.identificacao}</CardDescription>
-                      <CardDescription>GEAF: {hit._source?.acao.equipe_id}</CardDescription>
-                      <CardDescription>AUDITOR: {hit._source?.acao.auditor}</CardDescription>
-                      <CardDescription>INFRAÇÃO: {hit._source?.infracao}</CardDescription>
+                      <CardTitle>Processo: {item?.protocolo}</CardTitle>
+                      <CardDescription className="flex items-center gap-1">Ação Fiscal: {item?.acao.protocolo} <Link href={`?acao=${item?.acao.protocolo}`}><Link2Icon className="size-4" /></Link></CardDescription>
+                      <CardDescription>Data lavratura: {item?.dataLavratura}</CardDescription>
+                      <CardDescription>Sujeito passivo: {item?.acao.nome} - {item?.cnpj} - {item?.acao.identificacao}</CardDescription>
+                      <CardDescription>GEAF: {item?.acao.equipe_id}</CardDescription>
+                      <CardDescription>AUDITOR: {item?.acao.auditor}</CardDescription>
+                      <CardDescription>INFRAÇÃO: {item?.infracao}</CardDescription>
                     </CardHeader>
                     <CollapsibleContent asChild>
-                      <CardContent>
-                        <div className="mx-auto" dangerouslySetInnerHTML={{ __html: hit._source?.descricao ?? '' }}></div>
+                      <CardContent className="border-t pt-4">
+                        <div className="mx-auto" dangerouslySetInnerHTML={{ __html: item?.descricao ?? '' }}></div>
                       </CardContent>
                     </CollapsibleContent>
                   </Card>
