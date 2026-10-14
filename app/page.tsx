@@ -103,8 +103,8 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
                 <SidebarTrigger />
 
-                <div className="text-sm flex-1">
-                  <span>mostrando de {((page - 1) * 20) + 1} a {((page - 1) * 20) + data.hits.hits.length} de {count.count} registros encontrados</span>
+                <div className="text-sm flex flex-1">
+                  <span> <span className="hidden lg:inline"> mostrando </span> de {((page - 1) * 20) + 1} a {((page - 1) * 20) + data.hits.hits.length} de {count.count} <span className="hidden lg:inline"> registros encontrados</span> </span>
                 </div>
                 <div>
                   {data.hits.hits.length > 0 && (
@@ -114,7 +114,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                       </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant={`outline`}>{page.toString().padStart(2, `0`)} <span className="opacity-50">/</span>  {pages.toString().padStart(2, '0')}</Button>
+                          <Button variant={`outline`}>{page} <span className="opacity-50">/</span>  {pages}</Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           {Array(pages).fill(1).map((_, p) => (
@@ -131,18 +131,22 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                   )}
                 </div>
               </div>
-              
+
               {data.hits.hits.map(hit => hit._source).map(item => (
                 <Collapsible className="relative group" key={item?.id}>
                   <Card className="shadow">
+                    <CardHeader className="border-b py-1">
+                      <CardTitle>Processo: {item?.protocolo}</CardTitle>
+                      <CardDescription className="flex items-center gap-1">Ação Fiscal: {item?.acao.protocolo} <Link href={`?acao=${item?.acao.protocolo}`}><Link2Icon className="size-4" /></Link></CardDescription>
+                    </CardHeader>
                     <CardHeader className="relative">
                       <CollapsibleTrigger asChild>
                         <Button className="absolute -bottom-3 right-1 group" variant={'outline'}>
                           <ChevronDown className="transition-all group-data-[state=open]:rotate-180" />
                         </Button>
                       </CollapsibleTrigger>
-                      <CardTitle>Processo: {item?.protocolo}</CardTitle>
-                      <CardDescription className="flex items-center gap-1">Ação Fiscal: {item?.acao.protocolo} <Link href={`?acao=${item?.acao.protocolo}`}><Link2Icon className="size-4" /></Link></CardDescription>
+
+
                       <CardDescription>Data lavratura: {item?.dataLavratura}</CardDescription>
                       <CardDescription>Sujeito passivo: {item?.acao.nome} - {item?.cnpj} - {item?.acao.identificacao}</CardDescription>
                       <CardDescription>GEAF: {item?.acao.equipe_id}</CardDescription>

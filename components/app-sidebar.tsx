@@ -1,6 +1,6 @@
 import { FilterParams } from "@/lib/search";
 import { range } from "lodash";
-import { LogOutIcon } from "lucide-react";
+import { LogOutIcon, X } from "lucide-react";
 import { ComponentProps } from "react";
 import { ButtonLogout } from "./button-logout";
 import { FormLoading } from "./form-loading";
@@ -12,11 +12,20 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
+import { Field, FieldGroup, FieldLabel } from "./ui/field";
+import { InputGroup, InputGroupButton, InputGroupInput } from "./ui/input-group";
+import qs from 'querystring'
 
 export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: FilterParams }) {
 
     const session = await auth()
-        
+
+    function generateSearchParams(newParams: any) {
+        const search = { ...fields, ...newParams }
+
+        return "?" + qs.stringify(search)
+    }
+
     return <Sidebar variant="sidebar">
 
         <SidebarHeader className="border-b">
@@ -32,23 +41,87 @@ export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: F
         <SidebarContent>
             <Form action={``}>
                 <SidebarMenu className="flex flex-col gap-4 p-4">
+                    <Field className="gap-1">
+                        <FieldLabel>Ano</FieldLabel>
 
-                    <Select name="ano" key={`ano-${fields.ano}`} defaultValue={fields.ano ?? 'todos'}>
-                        <SelectTrigger className="w-full col-span-12 md:col-span-1">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="todos">Todos</SelectItem>
-                            {range(2021, 2027).reverse().map(ano => (
-                                <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Input key={`q-${fields.q}`} defaultValue={fields.q} placeholder="termo de busca..." name="q" />
-                    <Input key={`auditor-${fields.auditor}`} defaultValue={fields.auditor} placeholder="auditor..." name="auditor" />
-                    <Input key={`contribuinte-${fields.contribuinte}`} defaultValue={fields.contribuinte} placeholder="sujeito passivo..." name="contribuinte" />
-                    <Input key={`infracao-${fields.infracao}`} defaultValue={fields.infracao} placeholder="infracao..." name="infracao" />
-                    <Input key={`acao-${fields.acao}`} defaultValue={fields.acao} placeholder="acao fiscal..." name="acao" />
+                        <Select name="ano" key={`ano-${fields.ano}`} defaultValue={fields.ano ?? 'todos'}>
+                            <SelectTrigger className="w-full col-span-12 md:col-span-1">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="todos">Todos</SelectItem>
+                                {range(2021, 2027).reverse().map(ano => (
+                                    <SelectItem key={ano} value={ano.toString()}>{ano}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </Field>
+                    <Field className="gap-1 relative">
+                        <FieldLabel>Termo</FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput key={`q-${fields.q}`} defaultValue={fields.q} placeholder="termo de busca..." name="q" />
+                            {fields.q !== "" && (
+                                <InputGroupButton asChild>
+                                    <Link href={generateSearchParams({ q: '' })}>
+                                        <X />
+                                    </Link>
+                                </InputGroupButton>
+                            )}
+                        </InputGroup>
+
+                    </Field>
+                    <Field className="gap-1">
+                        <FieldLabel>Auditor</FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput key={`auditor-${fields.auditor}`} defaultValue={fields.auditor} placeholder="auditor..." name="auditor" />
+                            {fields.auditor !== "" && (
+                                <InputGroupButton asChild>
+                                    <Link href={generateSearchParams({ auditor: '' })}>
+                                        <X />
+                                    </Link>
+                                </InputGroupButton>
+                            )}
+                        </InputGroup>
+                    </Field>
+                    <Field className="gap-1">
+                        <FieldLabel>Sujeito Passivo</FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput key={`contribuinte-${fields.contribuinte}`} defaultValue={fields.contribuinte} placeholder="sujeito passivo..." name="contribuinte" />
+                            {fields.contribuinte !== "" && (
+                                <InputGroupButton asChild>
+                                    <Link href={generateSearchParams({ contribuinte: '' })}>
+                                        <X />
+                                    </Link>
+                                </InputGroupButton>
+                            )}
+                        </InputGroup>
+                    </Field>
+                    <Field className="gap-1">
+                        <FieldLabel>Infração</FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput key={`infracao-${fields.infracao}`} defaultValue={fields.infracao} placeholder="infracao..." name="infracao" />
+                            {fields.infracao !== "" && (
+                                <InputGroupButton asChild>
+                                    <Link href={generateSearchParams({ infracao: '' })}>
+                                        <X />
+                                    </Link>
+                                </InputGroupButton>
+                            )}
+                        </InputGroup>
+                    </Field>
+                    <Field className="gap-1">
+                        <FieldLabel>Ação</FieldLabel>
+                        <InputGroup>
+                            <InputGroupInput key={`acao-${fields.acao}`} defaultValue={fields.acao} placeholder="acao fiscal..." name="acao" />
+                            {fields.acao !== "" && (
+                                <InputGroupButton asChild>
+                                    <Link href={generateSearchParams({ acao: '' })}>
+                                        <X />
+                                    </Link>
+                                </InputGroupButton>
+                            )}
+                        </InputGroup>
+                    </Field>
                     <input type="hidden" name="p" value={1} />
 
                     <div className="flex gap-2 mt-4">

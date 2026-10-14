@@ -19,4 +19,5 @@ export function getFilterParams(params: Record<string, string | string[]>) {
     return data.data!;
 }
 
+
 export type FilterParams = ReturnType<typeof getFilterParams>
