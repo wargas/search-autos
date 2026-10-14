@@ -19,6 +19,7 @@ import { estypes } from '@elastic/elasticsearch'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarSeparator, SidebarTrigger } from "@/components/ui/sidebar";
 import React from "react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ModeToggle } from "@/components/theme-toggle";
 
 // type T =estypes
 
@@ -90,12 +91,11 @@ export default async function Home({ searchParams }: PageProps<"/">) {
         <Sidebar variant="sidebar">
           <SidebarHeader>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton type="button">
-                  <span className="text-xl font-bold text-primary">
-                    SEARCH AUTOS
-                  </span>
-                </SidebarMenuButton>
+              <SidebarMenuItem className="flex gap-2">
+                <span className="text-xl font-bold text-primary flex-1">
+                  SEARCH AUTOS 
+                </span>
+                <ModeToggle />
               </SidebarMenuItem>
             </SidebarMenu>
             <SidebarSeparator />
@@ -132,9 +132,14 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 <SidebarMenuButton asChild>
                   <div>
                     {session.user?.email ?? ""}
+
+
+
                     <ButtonLogout className="ml-auto">
                       <LogOutIcon />
                     </ButtonLogout>
+
+
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -179,9 +184,6 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                   </div>
                 </div>
               </div>
-              <code>
-
-              </code>
               {data.hits.hits.map(hit => (
                 <Collapsible className="relative group" key={hit._id}>
                   <Card className="shadow">
