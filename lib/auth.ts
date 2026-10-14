@@ -7,6 +7,7 @@ import { html, text } from "./email";
 import { createTransport } from "nodemailer";
 import qs from 'querystring'
 import { writeFile } from "fs/promises";
+import _ from "lodash";
 
 const storage = createStorage({
     driver: fsDriver({ base: "./data" })
@@ -26,7 +27,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 console.log("TOKEN", params.token);
                 console.log("EXPIRES", params.expires);
 
-              
+
                 const { identifier, url, provider, theme } = params;
                 const { host } = new URL(url);
 
@@ -35,7 +36,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 if (process.env.NODE_ENV != "production") {
                     console.log(params.url);
 
-                    await writeFile("email.html", html({url: params.url, host: host, theme: params.theme, token: params.token}))
+                    await writeFile("email.html", html({ url: params.url, host: host, theme: params.theme, token: params.token }))
 
                     return;
                 }
@@ -43,7 +44,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
                 // console.log(params.url);
 
-                
+
                 const transport = createTransport(provider.server);
                 const result = await transport.sendMail({
                     to: identifier,
@@ -67,6 +68,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     callbacks: {
         async signIn(props) {
             return !!props.user.email?.toLocaleLowerCase().endsWith("@sefaz.pe.gov.br")
+        },
+        session({ session }) {
+
+            session.user.name = session.user.email.replace(/(.*?)\.(.*?)@(.*)/, "$1 $2")
+                .split(" ").map(t => _.upperFirst(t)).join(" ")
+
+            return session
         }
     }
 });

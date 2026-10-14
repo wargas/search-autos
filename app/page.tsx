@@ -25,7 +25,7 @@ import { ModeToggle } from "@/components/theme-toggle";
 
 export default async function Home({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
-  const { q, ano = "todos", auditor = "", p = "1", contribuinte = "" } = await searchParams
+  const { q, ano = "todos", auditor = "", p = "1", contribuinte = "", infracao = "", acao = "" } = await searchParams
   const session = await auth()
 
   const page = parseInt(String(p))
@@ -40,8 +40,16 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     filter.push({ wildcard: { 'acao.dataCriacao': { value: `*${ano}` } } })
   }
 
+  if (infracao) {
+    filter.push({ match_phrase: { 'infracao': String(infracao) } })
+  }
+
   if (auditor) {
     filter.push({ match_phrase: { 'acao.auditor': String(auditor) } })
+  }
+
+  if (acao) {
+    filter.push({ match_phrase: { 'acao.protocolo': String(acao) } })
   }
 
   if (contribuinte) {
@@ -86,19 +94,18 @@ export default async function Home({ searchParams }: PageProps<"/">) {
   }
 
   return (
-    <SidebarProvider style={{ "--sidebar-width": "25rem", } as React.CSSProperties}>
+    <SidebarProvider style={{ "--sidebar-width": "22rem", } as React.CSSProperties}>
       <Form action={``}>
         <Sidebar variant="sidebar">
-          <SidebarHeader>
+          <SidebarHeader className="border-b">
             <SidebarMenu>
               <SidebarMenuItem className="flex gap-2">
                 <span className="text-xl font-bold text-primary flex-1">
-                  SEARCH AUTOS 
+                  SEARCH AUTOS
                 </span>
                 <ModeToggle />
               </SidebarMenuItem>
             </SidebarMenu>
-            <SidebarSeparator />
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu className="flex flex-col gap-4 p-4">
@@ -117,29 +124,40 @@ export default async function Home({ searchParams }: PageProps<"/">) {
               <Input className="col-span-12 md:col-span-6" defaultValue={q} placeholder="termo de busca..." name="q" />
               <Input className="col-span-12 md:col-span-2" defaultValue={auditor} placeholder="auditor..." name="auditor" />
               <Input className="col-span-12 md:col-span-2" defaultValue={contribuinte} placeholder="sujeito passivo..." name="contribuinte" />
+              <Input className="col-span-12 md:col-span-2" defaultValue={infracao} placeholder="infracao..." name="infracao" />
+              <Input className="col-span-12 md:col-span-2" defaultValue={acao} placeholder="acao fiscal..." name="acao" />
               <input type="hidden" name="p" value={1} />
-              <Button type="submit" className="col-span-12 md:col-span-1">
-                <FormLoading />
-                Filtrar</Button>
+
+              <div className="flex gap-2 mt-4">
+                <Button variant={`outline`} className="flex-1" asChild>
+                  <Link href={'/'}>
+                    Limpar
+                  </Link>
+                </Button>
+                <Button type="submit" className="col-span-12 md:col-span-1 flex-1">
+                  <FormLoading />
+                  Filtrar
+                </Button>
+              </div>
 
 
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter>
-            <SidebarSeparator />
+          <SidebarFooter className="border-t">
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton size={'lg'} asChild>
                   <div>
-                    {session.user?.email ?? ""}
+                    <div className="flex flex-col">
+                      <span>{session.user.name}</span>
+                      <span className="text-sm text-gray-300">
+                        {session.user?.email ?? ""}
+                      </span>
 
-
-
+                    </div>
                     <ButtonLogout className="ml-auto">
                       <LogOutIcon />
                     </ButtonLogout>
-
-
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
