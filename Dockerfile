@@ -13,7 +13,7 @@ FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG DATABASE_URL="postgres://user:pass@localhost:5432/db"
-RUN DATABASE_URL=$DATABASE_URL bun run build
+RUN bun run build
 
 # Runtime
 FROM oven/bun:latest AS runner
