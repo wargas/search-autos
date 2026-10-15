@@ -9,7 +9,8 @@ const schema = z.object({
     p: z.string().default('1'),
     contribuinte: z.string().default(''),
     infracao: z.string().default(''),
-    acao: z.string().default('')
+    acao: z.string().default(''),
+    geaf: z.string().default('')
 })
  
 

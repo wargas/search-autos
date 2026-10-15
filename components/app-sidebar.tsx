@@ -15,6 +15,11 @@ import { auth } from "@/lib/auth";
 import { Field, FieldGroup, FieldLabel } from "./ui/field";
 import { InputGroup, InputGroupButton, InputGroupInput } from "./ui/input-group";
 import qs from 'querystring'
+import { acoes, processos } from "@/drizzle/schema";
+import { asc } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { Autocomplete } from "./autocomplete";
+
 
 export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: FilterParams }) {
 
@@ -25,6 +30,16 @@ export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: F
 
         return "?" + qs.stringify(search)
     }
+
+    const auditores = (await db.select({ label: acoes.auditor })
+        .from(acoes)
+        .groupBy(acoes.auditor)
+        .orderBy(asc(acoes.auditor))).map(i => ({ label: String(i.label), value: String(i.label) }))
+
+    const infracoes = (await db.select({ label: processos.infracao })
+        .from(processos)
+        .groupBy(processos.infracao)
+        .orderBy(asc(processos.infracao))).map(i => ({ label: String(i.label), value: String(i.label) }))
 
     return <Sidebar variant="sidebar">
 
@@ -72,16 +87,8 @@ export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: F
                     </Field>
                     <Field className="gap-1">
                         <FieldLabel>Auditor</FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput key={`auditor-${fields.auditor}`} defaultValue={fields.auditor} placeholder="auditor..." name="auditor" />
-                            {fields.auditor !== "" && (
-                                <InputGroupButton asChild>
-                                    <Link href={generateSearchParams({ auditor: '' })}>
-                                        <X />
-                                    </Link>
-                                </InputGroupButton>
-                            )}
-                        </InputGroup>
+                        <Autocomplete placeholder="auditor" key={`auditor-${fields.auditor}`} defaultValue={fields.auditor} name="auditor" items={auditores} />
+                        
                     </Field>
                     <Field className="gap-1">
                         <FieldLabel>Sujeito Passivo</FieldLabel>
@@ -98,16 +105,8 @@ export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: F
                     </Field>
                     <Field className="gap-1">
                         <FieldLabel>Infração</FieldLabel>
-                        <InputGroup>
-                            <InputGroupInput key={`infracao-${fields.infracao}`} defaultValue={fields.infracao} placeholder="infracao..." name="infracao" />
-                            {fields.infracao !== "" && (
-                                <InputGroupButton asChild>
-                                    <Link href={generateSearchParams({ infracao: '' })}>
-                                        <X />
-                                    </Link>
-                                </InputGroupButton>
-                            )}
-                        </InputGroup>
+                        <Autocomplete placeholder="infracao" defaultValue={fields.infracao} key={`infracao-${fields.infracao}`} name="infracao" items={infracoes} />
+                        
                     </Field>
                     <Field className="gap-1">
                         <FieldLabel>Ação</FieldLabel>
@@ -138,6 +137,9 @@ export async function AppSidebar({ fields }: ComponentProps<"div"> & { fields: F
 
 
                 </SidebarMenu>
+                <code>
+
+                </code>
             </Form>
         </SidebarContent>
         <SidebarFooter className="border-t">

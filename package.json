@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "bunx --bun next dev",
+    "build": "bunx --bun next build",
+    "start": "bunx --bun next start",
+    "lint": "eslint",
+    "db:pull": "bunx --bun drizzle-kit pull"
   },
   "dependencies": {
     "@auth/unstorage-adapter": "^2.11.3",
@@ -17,7 +18,9 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "cn": "^0.4.0",
     "date-fns": "^4.4.0",
+    "drizzle-orm": "^1.0.0-rc.4",
     "embla-carousel-react": "^8.6.0",
     "got": "^15.1.0",
     "input-otp": "^1.4.2",
@@ -51,6 +54,7 @@
     "@types/pretty-time": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^1.0.0-rc.4",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",

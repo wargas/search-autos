@@ -1,24 +1,14 @@
-import nodemailer from "nodemailer";
+import { asc } from "drizzle-orm";
+import { equipes, processos, acoes } from "./drizzle/schema";
+import { db } from "./lib/db";
 
-const auth = {
-    host: 'smtp.hostinger.com',
-    port: 587,
-    auth: {
-        user: 'admin',
-        pass: 'Wrgs2703!'
-    }
-}
-const transport = nodemailer.createTransport(process.env.EMAIL_SERVER)
+// const data = await db.select({ auditor: acoes.auditor })
+//     .from(acoes)
+//     .groupBy(acoes.auditor)
+//     .orderBy(asc(acoes.auditor))
 
+const data = await db.select({ infracao: processos.infracao })
+.from(processos)
+.groupBy(processos.infracao)
 
-await transport.verify()
-
-const info = await transport.sendMail({
-    from: 'admin@deltex.com.br',
-    to: 'teixeira.wargas@gmail.com',
-    subject: 'TESTE',
-    text: 'OLA MUNDO'
-})
-
-console.log(info.messageId)
-//EMAIL_SERVER=smtp://admin@Wrgs2703!@smtp.hostinger.com
+console.log(data)

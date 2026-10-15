@@ -48,6 +48,10 @@ export default async function Home({ searchParams }: PageProps<"/">) {
     filter.push({ match_phrase: { 'acao.protocolo': String(fields.acao) } })
   }
 
+  if (fields.geaf) {
+    filter.push({ match_phrase: { 'acao.equipe_id': String(fields.geaf) } })
+  }
+
   if (fields.contribuinte) {
     filter.push({
       multi_match: {
@@ -149,7 +153,9 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
                       <CardDescription>Data lavratura: {item?.dataLavratura}</CardDescription>
                       <CardDescription>Sujeito passivo: {item?.acao.nome} - {item?.cnpj} - {item?.acao.identificacao}</CardDescription>
-                      <CardDescription>GEAF: {item?.acao.equipe_id}</CardDescription>
+                      <CardDescription className="flex gap-1 items-center">GEAF: {item?.acao.equipe_id}
+                        <Link href={`?geaf=${item?.acao.equipe_id}`}><Link2Icon className="size-4" /></Link>
+                      </CardDescription>
                       <CardDescription>AUDITOR: {item?.acao.auditor}</CardDescription>
                       <CardDescription>INFRAÇÃO: {item?.infracao}</CardDescription>
                     </CardHeader>
